@@ -1,3 +1,14 @@
+import nltk
+from nltk import SnowballStemmer
+
+spanishstemmer = SnowballStemmer('spanish')
+# https://medium.com/qu4nt/reducir-el-n%C3%BAmero-de-palabras-de-un-texto-lematizaci%C3%B3n-y-radicalizaci%C3%B3n
+# -stemming-con-python-965bfd0c69fa
+# text = "Soy un texto que pide a gritos que lo procesen. Por eso yo canto,
+# tú cantas, ella canta, nosotros cantamos, cantáis, cantan"
+# tokens = normalize(text) # crear una lista de tokens
+# stems = [spanishstemmer.stem(token) for token in tokens] print(stems)
+
 from collections import defaultdict
 import requests
 from bs4 import BeautifulSoup
@@ -6,9 +17,7 @@ from collections import Counter
 from nltk.corpus import stopwords
 import string
 import json
-import time
 
-start = time.time()
 direccionURL = {}
 
 # 1 Lectura de URLS
@@ -24,7 +33,6 @@ print(lineas)
 cantidadUrls = 0
 for link in lineas:
     # 2 Estados de respuesta HTTP 200
-    start2 = time.time()
     stop_words = set(stopwords.words('spanish'))
     headers = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_5) AppleWebKit/537.36 (KHTML, like Gecko) '
                              'Chrome/50.0.2661.102 Safari/537.36'}
@@ -70,6 +78,14 @@ for link in lineas:
         print(cantidadUrls)
         print("URL :" + link)
 
+        stems = [spanishstemmer.stem(token) for token in  sinDuplicados]
+        stemsSinDuplicados = []
+        for a in stems:
+            if a not in stemsSinDuplicados:
+                if len(a) > 1:
+                    stemsSinDuplicados.append(a)
+        stemsSinDuplicados.sort()
+
         conteo = []
         for i in range(len(sinDuplicados)):
             x = sinDuplicados[i]
@@ -77,50 +93,14 @@ for link in lineas:
             conteo.append([x, d[x]])
 
         direccionURL[link] = conteo
-        end2 = time.time()
-        total = end2 - start2  # Tiempo de cada url
 
-        print("Tiempo trasnscurrido de URL")
-        print(total)
 
     else:
         print("Error de url en la conexion: " + link)
         print(datos.status_code)
-
-end = time.time()
-tiempoTotal = end - start
-
-print("Tiempo trasnscurrido total del programa")
-print(tiempoTotal)
-
-# 4 Generación de indice
-# f = open("indice2.txt", 'w', encoding='utf-8')
-# f.write(json.dumps(direccionURL, ensure_ascii=False))
-# f.close()
-
-
-# 4 Generación de indice
-
-with open("indice.txt", "w", encoding='utf-8') as file:
-    # f.write(json.dumps(direccionURL, ensure_ascii=False))
-    file.write("{")
-    cont = 1
-    for nombre, valor in direccionURL.items():
-        if cont == len(direccionURL):
-            file.write("%s:%s}\n" % (nombre, valor))
-        else:
-            file.write("%s:%s,\n" % (nombre, valor))
-        cont = cont + 1
-file.close()
-
-# 5 Generación de indice invertido
-index = defaultdict(list)
-for key, val in direccionURL.items():
-    for subkey, subval in val:
-        index[subkey].append((key, subval))
-
-# 6 Guardando indice invertido
-with open("indx_invertido2.txt", "w", encoding='utf-8') as file:
-    for key, val in index.items():
-        file.write("%s:%s\n" % (key, val))
-file.close()
+print("Palabras:")
+print(sinDuplicados)
+print("Palabras - Con raices:")
+print(stems)
+print("Con raices sin duplicados:")
+print(stemsSinDuplicados)

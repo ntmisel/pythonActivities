@@ -1,4 +1,5 @@
 from collections import defaultdict
+
 import requests
 from bs4 import BeautifulSoup
 import nltk
@@ -13,7 +14,7 @@ direccionURL = {}
 
 # 1 Lectura de URLS
 try:
-    with open("urls2.txt", 'r') as f:
+    with open("urls1.txt", 'r') as f:
         lineas = f.readlines()
         lineas = list(map(lambda l: l.rstrip('\n'), lineas))
 
@@ -100,27 +101,31 @@ print(tiempoTotal)
 
 
 # 4 Generación de indice
-
-with open("indice.txt", "w", encoding='utf-8') as file:
-    # f.write(json.dumps(direccionURL, ensure_ascii=False))
-    file.write("{")
-    cont = 1
-    for nombre, valor in direccionURL.items():
-        if cont == len(direccionURL):
-            file.write("%s:%s}\n" % (nombre, valor))
-        else:
-            file.write("%s:%s,\n" % (nombre, valor))
-        cont = cont + 1
-file.close()
+#with open("indice.txt", "w", encoding='utf-8') as file:
+#    # f.write(json.dumps(direccionURL, ensure_ascii=False))
+#    file.write("{")
+#    cont = 1
+#    for nombre, valor in direccionURL.items():
+#        if cont == len(direccionURL):
+#            file.write("%s:%s}\n" % (nombre, valor))
+#        else:
+#            file.write("%s:%s,\n" % (nombre, valor))
+#        cont = cont + 1
+#file.close()
 
 # 5 Generación de indice invertido
 index = defaultdict(list)
 for key, val in direccionURL.items():
     for subkey, subval in val:
         index[subkey].append((key, subval))
+#print(index)
 
 # 6 Guardando indice invertido
-with open("indx_invertido2.txt", "w", encoding='utf-8') as file:
-    for key, val in index.items():
-        file.write("%s:%s\n" % (key, val))
-file.close()
+#with open("indice_invertido.txt", "w", encoding='utf-8') as file:
+#    for key, val in index.items():
+#        file.write('"%s":%s\n' % (key, val))
+#file.close()
+
+f = open("../3.1/indice_invertido.json", 'w', encoding='utf-8')
+f.write(json.dumps(index, ensure_ascii=False))
+f.close()
